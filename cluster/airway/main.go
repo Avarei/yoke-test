@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 
 	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,7 +44,7 @@ func run() error {
 				Scope: apiextv1.NamespaceScoped,
 				Versions: []apiextv1.CustomResourceDefinitionVersion{
 					{
-						Name:    "v1alpha1",
+						Name:    strings.Split(clusterv1alpha1.APIVersion, "/")[1],
 						Served:  true,
 						Storage: true,
 						Schema: &apiextv1.CustomResourceValidation{

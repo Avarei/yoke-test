@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	APIVersion  = "example.com/v1"
+	APIVersion  = "example.com/v1alpha1"
 	KindCluster = "Cluster"
 )
 

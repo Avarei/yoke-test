@@ -39,7 +39,7 @@ kubectl apply -f - <<EOF
 apiVersion: example.com/v1alpha1
 kind: Cluster
 metadata:
-  name: thunderstorm
+  name: sunshine
 spec:
   type: vCluster
 EOF

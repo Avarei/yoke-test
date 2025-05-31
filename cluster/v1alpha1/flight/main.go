@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -55,7 +56,7 @@ func createVClusterHelm() ([]*unstructured.Unstructured, error) {
 	}
 
 	return chart.Render(
-		flight.Release(),
+		strings.Replace(strings.ToLower(flight.Release()), ".", "-", -1),
 		flight.Namespace(),
 		map[string]any{},
 	)
