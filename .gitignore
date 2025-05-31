@@ -1,0 +1,6 @@
+.vscode/
+.direnv/
+.out/
+*.wasm
+
+hack/
