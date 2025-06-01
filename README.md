@@ -34,7 +34,7 @@ GOOS=wasip1 GOARCH=wasm go build -o .out/airway-cluster.wasm ./cluster/airway
 
 ## Deploy it
 ```sh
-yoke takeoff --wait 30s aireway-cluster .out/airway-cluster.wasm
+yoke takeoff --wait 30s airway-cluster .out/airway-cluster.wasm
 kubectl apply -f - <<EOF
 apiVersion: example.com/v1alpha1
 kind: Cluster
