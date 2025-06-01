@@ -16,6 +16,8 @@ import (
 	clusterv1alpha1 "github.com/avarei/yoke-test/cluster/v1alpha1"
 )
 
+var Flight string
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -31,7 +33,7 @@ func run() error {
 		Spec: v1alpha1.AirwaySpec{
 			Mode: v1alpha1.AirwayModeStandard,
 			WasmURLs: v1alpha1.WasmURLs{
-				Flight: "oci://ghcr.io/avarei/yoke-test/flight-cluster-v1alpha1:v0.0.0-dirty",
+				Flight: Flight,
 			},
 			Template: apiextv1.CustomResourceDefinitionSpec{
 				Group: "example.com",
