@@ -33,6 +33,7 @@
             pkgs.go
             yoke
             pkgs.cobra-cli
+            pkgs.mage
           ];
         };
       }

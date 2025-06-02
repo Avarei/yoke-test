@@ -22,19 +22,19 @@ TODO:
 
 ## Build Flight
 ```sh
-GOOS=wasip1 GOARCH=wasm go build -o .out/flight-cluster-v1alpha1.wasm ./cluster/v1alpha1/flight
-yoke push .out/flight-cluster-v1alpha1.wasm oci://ghcr.io/avarei/yoke-test/flight-cluster-v1alpha1:v0.0.0-dirty
+GOOS=wasip1 GOARCH=wasm go build -C ./cluster -o ../.out/flight-cluster.wasm ./flight
+yoke push .out/flight-cluster-v1alpha1.wasm oci://ghcr.io/avarei/yoke-test/flight-cluster:v0.0.0-dirty
 ```
 
 ## Build Airway
 ```sh
 # don't forget to update the flight reference
-GOOS=wasip1 GOARCH=wasm go build -o .out/airway-cluster.wasm ./cluster/airway
+GOOS=wasip1 GOARCH=wasm go build -C cluster -o ../.out/airway-cluster.wasm ./airway
 ```
 
 ## Deploy it
 ```sh
-yoke takeoff --wait 30s airway-cluster .out/airway-cluster.wasm
+yoke takeoff --wait 30s airway-cluster .out/airway-cluster.wasm -- --flight=oci://ghcr.io/avarei/yoke-test/flight-cluster:v0.0.0-dirty
 kubectl apply -f - <<EOF
 apiVersion: example.com/v1alpha1
 kind: Cluster

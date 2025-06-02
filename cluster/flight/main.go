@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -29,15 +28,15 @@ func main() {
 }
 
 func run() error {
-	var cluster v1alpha1.Cluster
-	if err := yaml.NewYAMLToJSONDecoder(os.Stdin).Decode(&cluster); err != nil && err != io.EOF {
+	cluster := &v1alpha1.Cluster{}
+	if err := yaml.NewYAMLToJSONDecoder(os.Stdin).Decode(cluster); err != nil && err != io.EOF {
 		return err
 	}
 
 	switch cluster.Spec.Type {
 	case v1alpha1.ClusterTypeVCluster:
 		var err error
-		resources, err := createVClusterHelm()
+		resources, err := createVClusterHelm(cluster)
 		if err != nil {
 			return err
 		}
@@ -48,15 +47,14 @@ func run() error {
 	}
 }
 
-func createVClusterHelm() ([]*unstructured.Unstructured, error) {
-
+func createVClusterHelm(cluster *v1alpha1.Cluster) ([]*unstructured.Unstructured, error) {
 	chart, err := helm.LoadChartFromZippedArchive(chart)
 	if err != nil {
 		return nil, err
 	}
 
 	return chart.Render(
-		strings.Replace(strings.ToLower(flight.Release()), ".", "-", -1),
+		cluster.GetName(),
 		flight.Namespace(),
 		map[string]any{},
 	)

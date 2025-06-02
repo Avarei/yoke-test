@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"reflect"
@@ -16,8 +18,6 @@ import (
 	clusterv1alpha1 "github.com/avarei/yoke-test/cluster/v1alpha1"
 )
 
-var Flight string
-
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -26,6 +26,14 @@ func main() {
 }
 
 func run() error {
+	var flight string
+	flag.StringVar(&flight, "flight", "", "wasm URL of the v1alpha1 Flight for ")
+	flag.Parse()
+
+	if flight == "" {
+		return errors.New("flight URL not specified")
+	}
+
 	return json.NewEncoder(os.Stdout).Encode(v1alpha1.Airway{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "clusters.example.com",
@@ -33,7 +41,7 @@ func run() error {
 		Spec: v1alpha1.AirwaySpec{
 			Mode: v1alpha1.AirwayModeStandard,
 			WasmURLs: v1alpha1.WasmURLs{
-				Flight: Flight,
+				Flight: flight,
 			},
 			Template: apiextv1.CustomResourceDefinitionSpec{
 				Group: "example.com",
