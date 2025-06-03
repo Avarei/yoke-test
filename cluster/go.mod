@@ -3,7 +3,7 @@ module github.com/avarei/yoke-test/cluster
 go 1.24.3
 
 require (
-	github.com/yokecd/yoke v0.12.9
+	github.com/yokecd/yoke v0.13.3
 	k8s.io/apiextensions-apiserver v0.33.0
 	k8s.io/apimachinery v0.33.1
 )

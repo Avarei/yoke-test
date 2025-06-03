@@ -1,9 +1,10 @@
-package v1
+package v1alpha1
 
 import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/yokecd/yoke/pkg/flight"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -15,13 +16,17 @@ const (
 type Cluster struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta `json:"metadata"`
-	Spec              ClusterSpec `json:"spec"`
+	Spec              ClusterSpec   `json:"spec"`
+	Status            ClusterStatus `json:"status,omitempty"`
 }
 
-// Our Backend Specification
 type ClusterSpec struct {
 	// ClusterType specifies what kind of cluster to deploy it
 	Type ClusterType `json:"type" Enum:"vCluster,ClusterAPI,Gardener"`
+}
+
+type ClusterStatus struct {
+	Conditions flight.Conditions `json:"conditions,omitempty"`
 }
 
 type ClusterType string

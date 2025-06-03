@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 
+	meta "k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
@@ -21,30 +23,66 @@ import (
 var chart []byte
 
 func main() {
-	if err := run(); err != nil {
+	if err := run(os.Stdin, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
+func run(stdin io.Reader, stdout io.Writer) error {
 	cluster := &v1alpha1.Cluster{}
-	if err := yaml.NewYAMLToJSONDecoder(os.Stdin).Decode(cluster); err != nil && err != io.EOF {
+	if err := yaml.NewYAMLToJSONDecoder(stdin).Decode(cluster); err != nil && err != io.EOF {
 		return err
 	}
+	resources, err := reconcile(cluster)
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(stdout).Encode(resources)
+}
+
+func reconcile(cluster *v1alpha1.Cluster) ([]any, error) {
+	if !meta.IsStatusConditionPresentAndEqual(cluster.Status.Conditions, "Ready", metav1.ConditionTrue) {
+		meta.SetStatusCondition((*[]metav1.Condition)(&cluster.Status.Conditions), metav1.Condition{
+			Type:               "Ready",
+			Status:             metav1.ConditionTrue,
+			Reason:             "Everything is Good",
+			Message:            "Weather is nice...",
+			ObservedGeneration: cluster.Generation,
+		})
+	}
+
+	cluster.Status = v1alpha1.ClusterStatus{
+		Conditions: []metav1.Condition{
+			{
+				Type:               "Ready",
+				Status:             metav1.ConditionUnknown,
+				Message:            "I am curious what happens next",
+				ObservedGeneration: cluster.ObjectMeta.Generation,
+				LastTransitionTime: metav1.Now(),
+			},
+		},
+	}
+	var resources []any
 
 	switch cluster.Spec.Type {
 	case v1alpha1.ClusterTypeVCluster:
 		var err error
-		resources, err := createVClusterHelm(cluster)
+		vclusterResources, err := createVClusterHelm(cluster)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return json.NewEncoder(os.Stdout).Encode(resources)
+		for _, resource := range vclusterResources {
+			resources = append(resources, resource)
+		}
 
 	default:
-		return errors.New("not yet implemented cluster type")
+		return nil, errors.New("not yet implemented cluster type")
 	}
+
+	resources = append(resources, cluster)
+
+	return resources, nil
 }
 
 func createVClusterHelm(cluster *v1alpha1.Cluster) ([]*unstructured.Unstructured, error) {
