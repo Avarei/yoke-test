@@ -15,13 +15,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
         yoke = pkgs.buildGo124Module rec {
               pname = "yoke";
-              version = "v0.13.3";
+              version = "v0.13.4";
               subPackages = [ "cmd/yoke" ];
               src = pkgs.fetchFromGitHub {
                 owner = "yokecd";
                 repo = "yoke";
-                rev = "v0.13.3";
-                sha256 = "sha256-JFdsBCk/3eTfStXh+OKrkVHqys2DbWQg+c03AIVWBuk=";
+                rev = "v0.13.4";
+                sha256 = "sha256-3WTXz+ZDPUJ2+v4xVqQCXDHhdi3rJLowsDAzvovJbLQ=";
               };
               vendorHash = "sha256-Z3hkYD6QnKS1kEkuF0aLfypaq+J/8ECApkU1UYVukU4=";
               doCheck = false;

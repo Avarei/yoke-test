@@ -12,7 +12,7 @@ install yoke see [flake.nix](./flake.nix) or `go install github.com/yokecd/yoke/
 ## Install Yoke ATC
 
 ### For now
-yoke takeoff -wait 30s --create-namespace --namespace atc atc oci://ghcr.io/yokecd/atc-installer:latest
+make install
 
 ### In the Future
 TODO:
@@ -20,21 +20,29 @@ TODO:
 * Deploy ArgoCD using Yoke (with yokecd plugin)
 * Deploy YokeATC using ArgoCD
 
-## Build Flight
+## Build Flight and Airway
+
+To build all flights and airways run
 ```sh
-GOOS=wasip1 GOARCH=wasm go build -C ./cluster -o ../.out/flight-cluster.wasm ./flight
-yoke push .out/flight-cluster-v1alpha1.wasm oci://ghcr.io/avarei/yoke-test/flight-cluster:v0.0.0-dirty
+make build
 ```
 
-## Build Airway
-```sh
-# don't forget to update the flight reference
-GOOS=wasip1 GOARCH=wasm go build -C cluster -o ../.out/airway-cluster.wasm ./airway
-```
+To build a specific flight and airway find it using `make list` and build it using e.g. `make build-cluster`
+
+## Push it
+to push an airway and flight to ghcr.io run `make push` or for a specific airway `make push-<target>`
 
 ## Deploy it
+
+To deploy it to the current cluster use `make deploy` or `make deploy-<target>` to deploy a specific api
+
+### Cluster
+
+Create a vCluster
+
 ```sh
-yoke takeoff --wait 30s airway-cluster .out/airway-cluster.wasm -- --flight=oci://ghcr.io/avarei/yoke-test/flight-cluster:v0.0.0-dirty
+make deploy-cluster
+
 kubectl apply -f - <<EOF
 apiVersion: example.com/v1alpha1
 kind: Cluster
@@ -45,12 +53,19 @@ spec:
 EOF
 ```
 
+### MyList
+
+Lets create a conflict were two CRs both want to manage the same resource
+
 ```sh
+make deploy-mylist
+
 kubectl apply -f - <<EOF
+---
 apiVersion: example.com/v1alpha1
 kind: MyList
 metadata:
-  name: hello
+  name: conflict-a
 spec:
   items:
     - apiVersion: v1
@@ -59,13 +74,18 @@ spec:
         name: first
       data:
         foo: bar
+---
+apiVersion: example.com/v1alpha1
+kind: MyList
+metadata:
+  name: conflict-b
+spec:
+  items:
     - apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: second
+        name: first
       data:
-        baz: bak
+        bar: baz
 EOF
-
-
 ```

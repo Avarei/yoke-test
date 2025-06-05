@@ -3,31 +3,55 @@ REGISTRY := ghcr.io
 REPOSITORY := avarei/yoke-test
 TAG := $(shell git describe --tags --always --dirty)
 
-build:
+WHITE := \033[0m
+BLUE := \033[36m
+
+.PHONY: build build-% push push-% deploy deploy-% help
+
+list: ## display a list of all specific airways
+	@for api in $(APIS); do \
+		printf "$(BLUE)$$api$(WHITE)\n"; \
+	done
+
+build: ## build all airways an flights
 	@echo "Building all flights..."
 	@for api in $(APIS); do \
 		GOOS=wasip1 GOARCH=wasm go build -C ./$$api -o ../.out/flight-$$api.wasm ./flight; \
 		GOOS=wasip1 GOARCH=wasm go build -C ./$$api -o ../.out/airway-$$api.wasm ./airway; \
 	done
 
-build-%:
+build-%: ## build a specific airway and flight
 	GOOS=wasip1 GOARCH=wasm go build -C ./$* -o ../.out/flight-$*.wasm ./flight
 	GOOS=wasip1 GOARCH=wasm go build -C ./$* -o ../.out/airway-$*.wasm ./airway
 
-push: build
+push: build ## build and push all airways and flights
 	@for api in $(APIS); do \
 		yoke push .out/flight-$$api.wasm oci://$(REGISTRY)/$(REPOSITORY)/flight-$$api:$(TAG); \
 		yoke push .out/airway-$$api.wasm oci://$(REGISTRY)/$(REPOSITORY)/airway-$$api:$(TAG); \
 	done
 
-push-%: build-%
+push-%: build-% ## build and push a specific airway and flight
 	yoke push .out/flight-$*.wasm oci://$(REGISTRY)/$(REPOSITORY)/flight-$*:$(TAG)
 	yoke push .out/airway-$*.wasm oci://$(REGISTRY)/$(REPOSITORY)/airway-$*:$(TAG)
 
-deploy:
+deploy: ## all airways to the cluster
 	@for api in $(APIS); do \
 		yoke takeoff --wait=30s airway-$$api oci://$(REGISTRY)/$(REPOSITORY)/airway-$$api:$(TAG) -- --flight oci://$(REGISTRY)/$(REPOSITORY)/flight-$$api:$(TAG); \
 	done
 
-deploy-%:
+deploy-%: ## deploy a specific airway
 	yoke takeoff --wait=30s airway-$* oci://$(REGISTRY)/$(REPOSITORY)/airway-$*:$(TAG) -- --flight oci://$(REGISTRY)/$(REPOSITORY)/flight-$*:$(TAG)
+
+undeploy: ## remove all airways and flights in this repo
+	@for api in $(APIS); do \
+		yoke mayday airway-$$api; \
+	done
+
+install: ## the yoke-atc into the cluster
+	yoke takeoff -wait 30s --create-namespace --namespace atc atc oci://ghcr.io/yokecd/atc-installer:latest
+
+uninstall: undeploy ## the yoke-atc from the cluster (cleans up airways first)
+	yoke mayday --namespace atc atc
+
+help:
+	@awk 'BEGIN {FS = ":.*?#"} /^[a-zA-Z0-9%_-]+:.*?#/ { printf "  $(BLUE)%-15s$(WHITE) %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
