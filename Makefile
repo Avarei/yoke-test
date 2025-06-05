@@ -31,10 +31,3 @@ deploy:
 
 deploy-%:
 	yoke takeoff --wait=30s airway-$* oci://$(REGISTRY)/$(REPOSITORY)/airway-$*:$(TAG) -- --flight oci://$(REGISTRY)/$(REPOSITORY)/flight-$*:$(TAG)
-
-dev-deploy: build
-	@for api in $(APIS); do \
-		yoke takeoff --wait=30s airway-$$api oci://$(REGISTRY)/$(REPOSITORY)/airway-$$api:$(TAG) -- --flight .out/flight-$$api.wasm; \
-	done
-dev-deploy-%: build-%
-	yoke takeoff --wait=30s airway-$* oci://$(REGISTRY)/$(REPOSITORY)/airway-$*:$(TAG) -- --flight .out/flight-$*.wasm
