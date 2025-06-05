@@ -15,15 +15,15 @@
         pkgs = nixpkgs.legacyPackages.${system};
         yoke = pkgs.buildGo124Module rec {
               pname = "yoke";
-              version = "v0.12.9";
+              version = "v0.13.3";
               subPackages = [ "cmd/yoke" ];
               src = pkgs.fetchFromGitHub {
                 owner = "yokecd";
                 repo = "yoke";
-                rev = "v0.12.9";
-                sha256 = "sha256-4n4hzwOuzS3bZ2vAr0fn+3urlT7ihC+cStRddmtqKPg";
+                rev = "v0.13.3";
+                sha256 = "sha256-JFdsBCk/3eTfStXh+OKrkVHqys2DbWQg+c03AIVWBuk=";
               };
-              vendorHash = "sha256-Lqzi7oRmnhINZY+Tbkh42qhNaKtExUc3kUBjufxCyLw=";
+              vendorHash = "sha256-Z3hkYD6QnKS1kEkuF0aLfypaq+J/8ECApkU1UYVukU4=";
               doCheck = false;
             };
       in
