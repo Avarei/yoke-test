@@ -44,3 +44,28 @@ spec:
   type: vCluster
 EOF
 ```
+
+```sh
+kubectl apply -f - <<EOF
+apiVersion: example.com/v1alpha1
+kind: MyList
+metadata:
+  name: hello
+spec:
+  items:
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: first
+      data:
+        foo: bar
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: second
+      data:
+        baz: bak
+EOF
+
+
+```

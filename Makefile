@@ -1,4 +1,4 @@
-APIS := cluster
+APIS := cluster mylist
 REGISTRY := ghcr.io
 REPOSITORY := avarei/yoke-test
 TAG := $(shell git describe --tags --always --dirty)
