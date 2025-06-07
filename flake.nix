@@ -33,7 +33,9 @@
             pkgs.go
             yoke
             pkgs.cobra-cli
-            pkgs.mage
+            pkgs.kubernetes-helm
+            pkgs.gnumake
+            pkgs.git
           ];
         };
       }
