@@ -19,14 +19,12 @@ install yoke see [flake.nix](./flake.nix) or `go install github.com/yokecd/yoke/
 > TODO: add atc install to app of apps
 
 #### Deploy ArgoCD
-
 ```sh
-YOKECD_VERSION=0.12.3
-echo: "version: $YOKECD_VERSION" | yoke takeoff --create-namespace --namespace argocd yokecd oci://ghcr.io/yokecd/yokecd-installer:$YOKECD_VERSION
+make install-yokecd
 ```
 #### Deploy App of Apps
 ```sh
-yoke takeoff --namespace argocd argocd-app-of-apps oci://ghcr.io/avarei/yoke-test/argocd-aoa
+make deploy-app-of-apps
 ```
 
 ## Build Flight and Airway

@@ -8,6 +8,7 @@ import (
 	"os"
 
 	applicationv1alpha1 "github.com/avarei/yoke-test/argocd-aoa/apis/v1alpha1"
+	"github.com/yokecd/yoke/pkg/flight"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 )
@@ -50,9 +51,13 @@ func reconcile() ([]applicationv1alpha1.Application, error) {
 
 func createAppCluster(revision string) (applicationv1alpha1.Application, error) {
 	return applicationv1alpha1.Application{
+		TypeMeta: v1.TypeMeta{
+			APIVersion: "argoproj.io/v1alpha1",
+			Kind:       "Application",
+		},
 		ObjectMeta: v1.ObjectMeta{
 			Name:      "cluster",
-			Namespace: "argocd",
+			Namespace: flight.Namespace(),
 		},
 		Spec: applicationv1alpha1.ApplicationSpec{
 			Project: "default",
