@@ -12,24 +12,22 @@ install yoke see [flake.nix](./flake.nix) or `go install github.com/yokecd/yoke/
 ## Install Yoke ATC
 
 ### For now
-make install
+`make install`
 
-### In the Future
-TODO:
+### Use ArgoCD App of apps
 
-* Deploy ArgoCD using Yoke (with yokecd plugin)
-* Deploy YokeATC using ArgoCD
+> TODO: add atc install to app of apps
+
+#### Deploy ArgoCD
 
 ```sh
 YOKECD_VERSION=0.12.3
 echo: "version: $YOKECD_VERSION" | yoke takeoff --create-namespace --namespace argocd yokecd oci://ghcr.io/yokecd/yokecd-installer:$YOKECD_VERSION
 ```
-deploy app of apps
+#### Deploy App of Apps
 ```sh
 yoke takeoff --namespace argocd argocd-app-of-apps oci://ghcr.io/avarei/yoke-test/argocd-aoa
 ```
-
-TODO: add pipeline that automatically builds and pushes wasm images on each commit to main
 
 ## Build Flight and Airway
 
