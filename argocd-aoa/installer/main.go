@@ -65,10 +65,8 @@ func createAppAppOfApps() (applicationv1alpha1.Application, error) {
 								String_: ptr.To("true"),
 							},
 							applicationv1alpha1.ApplicationSourcePluginParameter{
-								Name: "args",
-								OptionalArray: &applicationv1alpha1.OptionalArray{
-									Array: []string{"--revision=$ARGOCD_APP_REVISION_SHORT_8"},
-								},
+								Name:    "input",
+								String_: ptr.To("revision: $ARGOCD_APP_REVISION_SHORT_8"),
 							},
 						},
 					},
