@@ -35,7 +35,7 @@ var (
 func reconcile() ([]applicationv1alpha1.Application, error) {
 	revision := os.Getenv("ARGOCD_APP_REVISION_SHORT_8")
 	if revision == "" {
-		return nil, fmt.Errorf("expected Environment Variable \"ARGOCD_APP_REVISION_SHORT_8\" to be available")
+		return nil, fmt.Errorf("expected Environment Variable \"ARGOCD_APP_REVISION_SHORT_8\" to be available... here is the env:\n, %v", os.Environ())
 	}
 
 	var apps []applicationv1alpha1.Application
