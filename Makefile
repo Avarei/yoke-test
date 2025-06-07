@@ -1,3 +1,5 @@
+YOKE_ATC_VERISON := 0.12.3
+
 APIS := cluster mylist
 REGISTRY := ghcr.io
 REPOSITORY := avarei/yoke-test
@@ -48,7 +50,7 @@ undeploy: ## remove all airways and flights in this repo
 	done
 
 install: ## the yoke-atc into the cluster
-	yoke takeoff -wait 30s --create-namespace --namespace atc atc oci://ghcr.io/yokecd/atc-installer:latest
+	yoke takeoff -wait 30s --create-namespace --namespace atc atc oci://ghcr.io/yokecd/atc-installer:$(YOKE_ATC_VERISON)
 
 uninstall: undeploy ## the yoke-atc from the cluster (cleans up airways first)
 	yoke mayday --namespace atc atc
