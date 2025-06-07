@@ -26,6 +26,18 @@ jobs:
         extra_nix_config: |
           experimental-features = nix-command flakes
 
+    - name: Get flake input hash
+      id: flake-hash
+      run: echo "hash=$(nix flake metadata --json | jq -r .locked.narHash)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache flake build
+      uses: actions/cache@v4
+      with:
+        path: /nix/store
+        key: nix-flake-${{ steps.flake-hash.outputs.hash }}
+        restore-keys: |
+          nix-flake-
+
     - name: Build WASM via Nix flake
       run: |
         nix develop --command make REPOSITORY=$GITHUB_REPOSITORY push-cluster
