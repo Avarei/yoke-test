@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -20,17 +21,8 @@ func main() {
 	}
 }
 
-type ArgoCDInput struct {
-	Revision string `json"revision"`
-}
-
-func run(stdin io.Reader, stdout io.Writer) error {
-	input := ArgoCDInput{}
-	if err := json.NewDecoder(stdin).Decode(stdin); err != nil {
-		return err
-	}
-
-	resources, err := reconcile(input)
+func run(_ io.Reader, stdout io.Writer) error {
+	resources, err := reconcile()
 	if err != nil {
 		return err
 	}
@@ -41,8 +33,12 @@ var (
 	flightClusterImage string = "ghcr.io/avarei/yoke-test/flight-cluster"
 )
 
-func reconcile(input ArgoCDInput) ([]applicationv1alpha1.Application, error) {
-	revision := input.Revision
+func reconcile() ([]applicationv1alpha1.Application, error) {
+	var revision string
+	flag.StringVar(&revision, "revision", "", "revision of the git commit")
+	flag.Parse()
+
+	fmt.Println("called with revision: ", revision)
 
 	if revision == "" {
 		return nil, fmt.Errorf("expected --revision to be set")
