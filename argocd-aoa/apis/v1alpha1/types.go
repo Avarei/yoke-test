@@ -1081,6 +1081,35 @@ var (
 	ResourceHealthLocationAppTree ResourceHealthLocation = "appTree"
 )
 
+const (
+	APIVersion  = "argoproj.io/v1alpha1"
+	KindCluster = "Application"
+)
+
+// Custom Marshalling Logic so that users do not need to explicity fill out the Kind and ApiVersion.
+func (application Application) MarshalJSON() ([]byte, error) {
+	application.Kind = KindCluster
+	application.APIVersion = APIVersion
+
+	type applicationAlt Application
+	return json.Marshal(applicationAlt(application))
+}
+
+// Custom Unmarshalling to raise an error if the ApiVersion or Kind does not match.
+func (application *Application) UnmarshalJSON(data []byte) error {
+	type ApplicationAlt Application
+	if err := json.Unmarshal(data, (*ApplicationAlt)(application)); err != nil {
+		return err
+	}
+	if application.APIVersion != APIVersion {
+		return fmt.Errorf("unexpected api version: expected %s but got %s", APIVersion, application.APIVersion)
+	}
+	if application.Kind != KindCluster {
+		return fmt.Errorf("unexpected kind: expected %s but got %s", KindCluster, application.Kind)
+	}
+	return nil
+}
+
 // ApplicationStatus contains status information for the application
 type ApplicationStatus struct {
 	// Resources is a list of Kubernetes resources managed by this application

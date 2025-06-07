@@ -10,6 +10,7 @@ import (
 	applicationv1alpha1 "github.com/avarei/yoke-test/argocd-aoa/apis/v1alpha1"
 	"github.com/yokecd/yoke/pkg/flight"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/utils/ptr"
 )
 
@@ -26,7 +27,7 @@ type ArgoCDInput struct {
 
 func run(stdin io.Reader, stdout io.Writer) error {
 	input := &ArgoCDInput{}
-	if err := json.NewDecoder(stdin).Decode(input); err != nil {
+	if err := yaml.NewYAMLToJSONDecoder(stdin).Decode(input); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -39,6 +40,7 @@ func run(stdin io.Reader, stdout io.Writer) error {
 
 var (
 	flightClusterImage string = "ghcr.io/avarei/yoke-test/flight-cluster"
+	repoUrl            string = "https://github.com/avarei/yoke-test"
 )
 
 func reconcile(input *ArgoCDInput) ([]applicationv1alpha1.Application, error) {
@@ -54,9 +56,51 @@ func reconcile(input *ArgoCDInput) ([]applicationv1alpha1.Application, error) {
 		return nil, err
 	}
 
-	apps = append(apps, appCluster)
+	appAtc, err := createAppATC()
+	if err != nil {
+		return nil, err
+	}
+
+	apps = append(apps, appCluster, appAtc)
 
 	return apps, nil
+}
+
+func createAppATC() (applicationv1alpha1.Application, error) {
+	return applicationv1alpha1.Application{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      "atc",
+			Namespace: flight.Namespace(),
+		},
+		Spec: applicationv1alpha1.ApplicationSpec{
+			Project: "default",
+			Sources: applicationv1alpha1.ApplicationSources{
+				applicationv1alpha1.ApplicationSource{
+					RepoURL:        "oci://ghcr.io/yokecd/atc-installer",
+					TargetRevision: "0.12.3",
+					Plugin: &applicationv1alpha1.ApplicationSourcePlugin{
+						Name: "yokecd",
+						Parameters: applicationv1alpha1.ApplicationSourcePluginParameters{
+							applicationv1alpha1.ApplicationSourcePluginParameter{
+								Name:    "wasm",
+								String_: ptr.To("oci://ghcr.io/yokecd/atc-installer:0.12.3"),
+							},
+						},
+					},
+				},
+			},
+			Destination: applicationv1alpha1.ApplicationDestination{
+				Name:      "in-cluster",
+				Namespace: "atc",
+			},
+			SyncPolicy: &applicationv1alpha1.SyncPolicy{
+				Automated: &applicationv1alpha1.SyncPolicyAutomated{
+					Prune:    true,
+					SelfHeal: true,
+				},
+			},
+		},
+	}, nil
 }
 
 func createAppCluster(revision string) (applicationv1alpha1.Application, error) {
@@ -73,7 +117,7 @@ func createAppCluster(revision string) (applicationv1alpha1.Application, error) 
 			Project: "default",
 			Sources: applicationv1alpha1.ApplicationSources{
 				applicationv1alpha1.ApplicationSource{
-					RepoURL:        "https://github.com/avarei/yoke-test",
+					RepoURL:        repoUrl,
 					Path:           "./cluster/airway",
 					TargetRevision: "main",
 					Plugin: &applicationv1alpha1.ApplicationSourcePlugin{
