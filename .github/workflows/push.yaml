@@ -28,4 +28,4 @@ jobs:
 
     - name: Build WASM via Nix flake
       run: |
-        nix develop .#devShell --command 'make REPOSITORY=GITHUB_REPOSITORY push-cluster'`
+        nix develop --command make REPOSITORY=$GITHUB_REPOSITORY push-cluster
