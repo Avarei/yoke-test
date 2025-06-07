@@ -21,12 +21,12 @@ func main() {
 }
 
 type ArgoCDInput struct {
-	Revision string `json"revision"`
+	Revision string `json:"revision"`
 }
 
 func run(stdin io.Reader, stdout io.Writer) error {
-	input := ArgoCDInput{}
-	if err := json.NewDecoder(stdin).Decode(stdin); err != nil {
+	input := &ArgoCDInput{}
+	if err := json.NewDecoder(stdin).Decode(input); err != nil {
 		return err
 	}
 
@@ -41,7 +41,7 @@ var (
 	flightClusterImage string = "ghcr.io/avarei/yoke-test/flight-cluster"
 )
 
-func reconcile(input ArgoCDInput) ([]applicationv1alpha1.Application, error) {
+func reconcile(input *ArgoCDInput) ([]applicationv1alpha1.Application, error) {
 	revision := input.Revision
 
 	if revision == "" {
