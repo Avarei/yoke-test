@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -33,9 +34,14 @@ var (
 )
 
 func reconcile() ([]applicationv1alpha1.Application, error) {
-	revision := os.Getenv("ARGOCD_APP_REVISION_SHORT_8")
+	var revision string
+	flag.StringVar(&revision, "revision", "", "revision of the git commit")
+	flag.Parse()
+
+	fmt.Println("called with revision: ", revision)
+
 	if revision == "" {
-		return nil, fmt.Errorf("expected Environment Variable \"ARGOCD_APP_REVISION_SHORT_8\" to be available... here is the env:\n, %v", os.Environ())
+		return nil, fmt.Errorf("expected --revision to be set")
 	}
 
 	var apps []applicationv1alpha1.Application
