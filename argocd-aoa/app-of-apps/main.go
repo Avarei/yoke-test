@@ -76,7 +76,7 @@ func createAppATC() (applicationv1alpha1.Application, error) {
 			Project: "default",
 			Sources: applicationv1alpha1.ApplicationSources{
 				applicationv1alpha1.ApplicationSource{
-					RepoURL:        "https://github.com/yokecd/atc-installer",
+					RepoURL:        "https://github.com/yokecd/yoke",
 					Path:           "./cmd/atc-installer",
 					TargetRevision: "0.12.3",
 					Plugin: &applicationv1alpha1.ApplicationSourcePlugin{
