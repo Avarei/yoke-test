@@ -76,14 +76,15 @@ func createAppATC() (applicationv1alpha1.Application, error) {
 			Project: "default",
 			Sources: applicationv1alpha1.ApplicationSources{
 				applicationv1alpha1.ApplicationSource{
-					RepoURL:        "oci://ghcr.io/yokecd/atc-installer",
+					RepoURL:        "https://github.com/yokecd/atc-installer",
+					Path:           "./cmd/atc-installer",
 					TargetRevision: "0.12.3",
 					Plugin: &applicationv1alpha1.ApplicationSourcePlugin{
 						Name: "yokecd",
 						Parameters: applicationv1alpha1.ApplicationSourcePluginParameters{
 							applicationv1alpha1.ApplicationSourcePluginParameter{
-								Name:    "wasm",
-								String_: ptr.To("oci://ghcr.io/yokecd/atc-installer:0.12.3"),
+								Name:    "build",
+								String_: ptr.To("true"),
 							},
 						},
 					},
