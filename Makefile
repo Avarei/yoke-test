@@ -10,6 +10,21 @@ ARGOCD_NAMESPACE := argocd
 
 WHITE := \033[0m
 BLUE := \033[36m
+define YOKECD_VALUES =
+version: $(YOKECD_VERSION)
+argocd:
+  createClusterRoles: true
+  repoServer:
+    serviceAccount:
+      create: true
+    clusterRoleRules:
+      enabled: true
+    rules:
+      - apiGroups: ""
+        resources: ["secrets"]
+        resourceNames: ["atc-tls"]
+        verbs: ["get", "watch"]
+endef
 
 .PHONY: build build-% push push-% deploy deploy-% help
 
@@ -67,7 +82,26 @@ install: ## the yoke-atc into the cluster
 	yoke takeoff -wait 30s --create-namespace --namespace atc atc oci://ghcr.io/yokecd/atc-installer:$(YOKE_ATC_VERISON)
 
 install-yokecd: ## installs argocd with yokecd plugin
-	@echo "version: $(YOKECD_VERSION)" | yoke takeoff --create-namespace --namespace $(ARGOCD_NAMESPACE) yokecd oci://ghcr.io/yokecd/yokecd-installer:$(YOKECD_VERSION)
+	@printf "\
+	version: $(YOKECD_VERSION)\n\
+	argocd:\n\
+	  createClusterRoles: true\n\
+	  repoServer:\n\
+	    serviceAccount:\n\
+	      create: true\n\
+	    clusterRoleRules:\n\
+	      enabled: true\n\
+	      rules:\n\
+	        - apiGroups:\n\
+	            - \"\"\n\
+	          resources: [\"secrets\"]\n\
+	          resourceNames: [\"atc-tls\"]\n\
+	          verbs: [\"get\", \"watch\"]\n" \
+			  | yoke takeoff --create-namespace --namespace $(ARGOCD_NAMESPACE) yokecd oci://ghcr.io/yokecd/yokecd-installer:$(YOKECD_VERSION)
+	
+
+clean:
+	yoke mayday --namespace argocd yokecd
 
 uninstall: undeploy ## the yoke-atc from the cluster (cleans up airways first)
 	yoke mayday --namespace atc atc
